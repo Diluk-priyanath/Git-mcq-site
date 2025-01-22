@@ -1,0 +1,1142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GIS Quiz</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: auto;
+            background: white;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .question {
+            margin-bottom: 20px;
+        }
+
+        .answer {
+            display: block;
+            margin: 5px 0;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .correct {
+            background-color: green;
+            color: white;
+        }
+
+        .incorrect {
+            background-color: red;
+            color: white;
+        }
+
+        .confetti {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 999;
+        }
+
+        #score {
+            font-size: 1.2em;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>GIS Quiz</h1>
+        <div id="score">Score: 0 / 100</div>
+        <div id="quiz"></div>
+        <button id="nextButton">Next Question</button>
+        <div id="result"></div>
+    </div>
+    <script>
+        const questions = [
+            {
+                question: "What does GIS stand for?",
+                answers: [
+                    "Global Information System",
+                    "Geographic Information System",
+                    "Geospatial Intelligence Software",
+                    "Global Integration System"
+                ],
+                correct: 1
+            },
+            {
+                question: "Which of the following is NOT a component of GIS?",
+                answers: [
+                    "People",
+                    "Hardware",
+                    "Methodology",
+                    "Chemistry"
+                ],
+                correct: 3
+            },
+            {
+                question: "What type of data does GIS primarily deal with?",
+                answers: [
+                    "Tabular data only",
+                    "Audio data",
+                    "Location-based (spatial) data and attribute data",
+                    "Statistical data only"
+                ],
+                correct: 2
+            },
+            {
+                question: "Which of the following is an example of raster data?",
+                answers: [
+                    "Roads represented as lines",
+                    "A satellite image",
+                    "A city represented as a point",
+                    "A country's boundary represented as a polygon"
+                ],
+                correct: 1
+            },
+            {
+                question: "In the vector data model, how are geographic features represented?",
+                answers: [
+                    "Pixels and cells",
+                    "Points, lines, and polygons",
+                    "Charts and graphs",
+                    "Numeric codes"
+                ],
+                correct: 1
+            },
+            {
+                question: "What is the primary purpose of GPS in GIS?",
+                answers: [
+                    "Designing hardware for data storage",
+                    "Collecting spatial and attribute data",
+                    "Mapping the human genome",
+                    "Processing statistical queries"
+                ],
+                correct: 1
+            },
+            {
+                question: "Which GIS software was introduced with ArcView in 1993?",
+                answers: [
+                    "MapInfo",
+                    "GRASS",
+                    "Shapefile",
+                    "ArcGIS"
+                ],
+                correct: 2
+            },
+            {
+                question: "What is 'heads-up digitizing'?",
+                answers: [
+                    "Digitizing with a tablet and stylus",
+                    "Digitizing using a computer screen",
+                    "Manual entry of coordinates",
+                    "Automated GPS data collection"
+                ],
+                correct: 1
+            },
+            {
+                question: "What is the most important and time-consuming component of GIS?",
+                answers: [
+                    "Hardware setup",
+                    "Data collection",
+                    "Software installation",
+                    "Training people"
+                ],
+                correct: 1
+            },
+            {
+                question: "What is an example of attribute data?",
+                answers: [
+                    "Latitude and longitude coordinates of a city",
+                    "Temperature and rainfall of a location",
+                    "Satellite imagery",
+                    "Elevation contours on a map"
+                ],
+                correct: 1
+            },
+            {
+                question: "What does the 'spatial component' in GIS refer to?",
+                answers: [
+                    "Hardware setup",
+                    "Location-based data with coordinates",
+                    "Software tools",
+                    "Statistical methods"
+                ],
+                correct: 1
+            },
+            {
+                question: "Which of the following is NOT a GIS software?",
+                answers: [
+                    "ArcGIS",
+                    "GRASS",
+                    "MicroStation",
+                    "Photoshop"
+                ],
+                correct: 3
+            },
+            {
+                question: "What is a primary advantage of vector data over raster data?",
+                answers: [
+                    "Easier to store large datasets",
+                    "Better for representing continuous data",
+                    "Precision in representing discrete features",
+                    "Requires less processing power"
+                ],
+                correct: 2
+            },
+            {
+                question: "Which is an example of attribute data in GIS?",
+                answers: [
+                    "Coordinates of a location",
+                    "Population of a city",
+                    "A scanned map",
+                    "Satellite imagery"
+                ],
+                correct: 1
+            },
+            {
+                question: "What is 'snapping' in the digitizing process?",
+                answers: [
+                    "Correcting map errors after digitization",
+                    "Automatically aligning new nodes with existing ones",
+                    "Simplifying attribute tables",
+                    "Adding new layers to a map"
+                ],
+                correct: 1
+            },
+            {
+                question: "Which is a common file format for vector data in GIS?",
+                answers: [
+                    "JPEG",
+                    "Shapefile",
+                    "TIFF",
+                    "MP3"
+                ],
+                correct: 1
+            },
+            {
+                question: "What is the main purpose of a geodatabase?",
+                answers: [
+                    "To provide statistical analysis tools",
+                    "To store and manage spatial and attribute data",
+                    "To display 3D visualizations",
+                    "To digitize raster data"
+                ],
+                correct: 1
+            },
+            {
+                question: "What is the maximum number of simultaneous users supported by a workgroup geodatabase?",
+                answers: [
+                    "5",
+                    "10",
+                    "20",
+                    "Unlimited"
+                ],
+                correct: 1
+            },
+            {
+                question: "Which type of spatial data model uses grids of cells?",
+                answers: [
+                    "Vector",
+                    "Raster",
+                    "Tabular",
+                    "CAD"
+                ],
+                correct: 1
+            },
+            {
+                question: "Which of the following is an application area of GIS?",
+                answers: [
+                    "Health",
+                    "Defense",
+                    "Agriculture",
+                    "All of the above"
+                ],
+                correct: 3
+            },
+            {
+                question: "What is 'heads-down digitizing'?",
+                answers: [
+                    "Digitizing using a computer screen",
+                    "Digitizing with a digitizing table",
+                    "Fully automated data conversion",
+                    "Manual data entry from reports"
+                ],
+                correct: 1
+            },
+            {
+                question: "What is the purpose of the 'PRJ' file in a shapefile?",
+                answers: [
+                    "Stores geographic coordinates",
+                    "Stores spatial reference information",
+                    "Contains attribute data",
+                    "Provides metadata for the shapefile"
+                ],
+                correct: 1
+            },
+            {
+                question: "Which GIS analysis function helps identify geographic patterns and trends?",
+                answers: [
+                    "Data digitization",
+                    "Spatial analysis",
+                    "Attribute table editing",
+                    "Map projection"
+                ],
+                correct: 1
+            },
+            {
+                question: "What does 'stream mode digitizing' involve?",
+                answers: [
+                    "Capturing features by clicking individual points",
+                    "Automatically adding vertices at regular intervals",
+                    "Converting raster data to vector format",
+                    "Cleaning digitizing errors"
+                ],
+                correct: 1
+            },
+            {
+                question: "Which of the following is a raster data category?",
+                answers: [
+                    "Continuous raster",
+                    "Vector polygon",
+                    "Attribute table",
+                    "Geodatabase"
+                ],
+                correct: 0
+            },
+            {
+                question: "What is the first step in GIS analysis?",
+                answers: [
+                    "Perform GIS analysis",
+                    "Prepare the data",
+                    "Establish objectives and criteria",
+                    "Present the results"
+                ],
+                correct: 2
+            },
+            {
+                question: "What is the main use of GPS in GIS?",
+                answers: [
+                    "Designing maps",
+                    "Collecting location-based data",
+                    "Performing attribute queries",
+                    "Managing databases"
+                ],
+                correct: 1
+            },
+            {
+                question: "Which GIS file type is best for handling large datasets with multiple users?",
+                answers: [
+                    "Shapefile",
+                    "Geodatabase",
+                    "Raster file",
+                    "Vector file"
+                ],
+                correct: 1
+            },
+            {
+                question: "What is the 'user segment' in GPS?",
+                answers: [
+                    "Ground antennas and monitoring stations",
+                    "Satellites providing signals",
+                    "Devices receiving and interpreting GPS data",
+                    "Backup control systems"
+                ],
+                correct: 2
+            },
+            {
+                question: "What is the primary characteristic of nominal data in GIS?",
+                answers: [
+                    "Includes quantities and measurements",
+                    "Represents categories without numerical value",
+                    "Differentiates data by ranking",
+                    "Uses equal intervals for measurements"
+                ],
+                correct: 1
+            },
+            {
+                question: "What is 'overlay analysis' in GIS?",
+                answers: [
+                    "Combining spatial layers to create a new one",
+                    "Projecting maps into 3D",
+                    "Editing attribute tables",
+                    "Performing spatial queries"
+                ],
+                correct: 0
+            },
+            {
+                question: "What does the 'TWI' index measure in GIS?",
+                answers: [
+                    "Topographic Wetness Index",
+                    "Temperature Water Index",
+                    "Terrain Water Integration",
+                    "Total Weather Index"
+                ],
+                correct: 0
+            },
+            {
+                question: "Which of the following best describes a 'thematic raster'?",
+                answers: [
+                    "Contains multiple layers of information",
+                    "Represents a single type of information like land use",
+                    "Displays continuous phenomena like temperature",
+                    "Stores attribute data only"
+                ],
+                correct: 1
+            },
+            {
+                question: "What is the most accurate method for converting cadastral data to GIS?",
+                answers: [
+                    "Satellite imagery",
+                    "GPS-based field survey",
+                    "Heads-up digitizing",
+                    "Manual data entry"
+                ],
+                correct: 1
+            },
+            {
+                question: "Which segment of GPS uses atomic clocks?",
+                answers: [
+                    "Space segment",
+                    "Control segment",
+                    "User segment",
+                    "All of the above"
+                ],
+                correct: 0
+            },
+            {
+                question: "Which of the following can minimize digitizing errors?",
+                answers: [
+                    "Heads-down digitizing",
+                    "Snapping",
+                    "Manual coordinate entry",
+                    "Attribute analysis"
+                ],
+                correct: 1
+            },
+            {
+                question: "Which type of GIS data format supports domains and subtypes?",
+                answers: [
+                    "Raster files",
+                    "Geodatabase",
+                    "Shapefile",
+                    "JPEG"
+                ],
+                correct: 1
+            },
+            {
+                question: "Which GIS analysis method is the simplest?",
+                answers: [
+                    "Mapping",
+                    "Network analysis",
+                    "Overlay",
+                    "Spatial query"
+                ],
+                correct: 0
+            },
+            {
+                question: "What is a 'graduated symbol' used for in GIS?",
+                answers: [
+                    "Representing different categories",
+                    "Showing quantities or numerical attributes",
+                    "Creating topographic maps",
+                    "Digitizing raster data"
+                ],
+                correct: 1
+            },
+            {
+                question: "What is the typical accuracy of modern GPS systems?",
+                answers: [
+                    "1-2 kilometers",
+                    "1-2 meters",
+                    "10-20 meters",
+                    "5-10 kilometers"
+                ],
+                correct: 1
+            },
+            {
+                question: "What is 'reclassification' in GIS analysis?",
+                answers: [
+                    "Combining multiple data layers",
+                    "Changing attribute values to new categories",
+                    "Digitizing raster data",
+                    "Calculating spatial measurements"
+                ],
+                correct: 1
+            },
+            {
+                question: "Which of the following is NOT an advantage of geodatabases over shapefiles?",
+                answers: [
+                    "Data validation with domains",
+                    "Multiple user access",
+                    "Smaller file sizes",
+                    "High-level raster editing"
+                ],
+                correct: 3
+            },
+            {
+                question: "What is 'attribute query' in GIS?",
+                answers: [
+                    "Performing calculations based on map features",
+                    "Extracting data using conditions applied to attribute tables",
+                    "Merging different spatial layers",
+                    "Changing coordinate systems"
+                ],
+                correct: 1
+            },
+            {
+                question: "Which GIS tool is most suitable for disaster management?",
+                answers: [
+                    "Spatial analysis",
+                    "GPS",
+                    "Overlay mapping",
+                    "All of the above"
+                ],
+                correct: 3
+            },
+            {
+                question: "Which of the following describes 'network analysis' in GIS?",
+                answers: [
+                    "Analyzing raster grids",
+                    "Studying connectivity and flow within networks",
+                    "Converting vector data to raster",
+                    "Measuring map projections"
+                ],
+                correct: 1
+            },
+            {
+                question: "What does 'scale' in GIS data mean?",
+                answers: [
+                    "Representation of data attributes",
+                    "The ratio between map distance and actual distance",
+                    "The coordinate reference system",
+                    "None of the above"
+                ],
+                correct: 1
+            },
+            {
+                question: "What type of GIS data is suitable for elevation modeling?",
+                answers: [
+                    "Vector polygons",
+                    "Raster grids",
+                    "Attribute tables",
+                    "Tabular data"
+                ],
+                correct: 1
+            },
+            {
+                question: "What does 'dissolve' do in GIS?",
+                answers: [
+                    "Simplifies attribute data",
+                    "Removes overlaps in vector data",
+                    "Combines features based on attribute values",
+                    "Converts raster data to vector"
+                ],
+                correct: 2
+            },
+            {
+                question: "What is 'geocoding' in GIS?",
+                answers: [
+                    "Assigning geographic coordinates to address data",
+                    "Creating new spatial layers",
+                    "Digitizing map features",
+                    "Classifying raster data"
+                ],
+                correct: 0
+            },
+            {
+                question: "What is the significance of 'buffering' in GIS?",
+                answers: [
+                    "Creating zones around spatial features",
+                    "Optimizing data storage",
+                    "Measuring spatial distances",
+                    "Overlaying maps"
+                ],
+                correct: 0
+            },
+            {
+                question: "What is 'map projection' in GIS?",
+                answers: [
+                    "A method to display a 3D surface on a 2D plane",
+                    "An analysis tool for map overlays",
+                    "A data classification technique",
+                    "A method for GPS signal correction"
+                ],
+                correct: 0
+            },
+            {
+                question: "What does 'spatial interpolation' involve?",
+                answers: [
+                    "Extracting data from raster layers",
+                    "Predicting values for locations based on surrounding data",
+                    "Digitizing features from paper maps",
+                    "Overlaying multiple map layers"
+                ],
+                correct: 1
+            },
+            {
+                question: "Which data type is most suited for analyzing soil types?",
+                answers: [
+                    "Vector polygons",
+                    "Continuous raster",
+                    "Thematic raster",
+                    "Attribute tables"
+                ],
+                correct: 2
+            },
+            {
+                question: "What is the purpose of 'spatial query' in GIS?",
+                answers: [
+                    "Extracting spatial features based on location",
+                    "Generating map projections",
+                    "Performing statistical analysis",
+                    "Converting raster data to vector"
+                ],
+                correct: 0
+            },
+            {
+                question: "What does 'normalization' of attribute data involve?",
+                answers: [
+                    "Removing null values",
+                    "Scaling data to remove redundancy",
+                    "Combining multiple layers",
+                    "Reclassifying values into categories"
+                ],
+                correct: 1
+            },
+            {
+                question: "Which type of map highlights elevation through shading?",
+                answers: [
+                    "Choropleth map",
+                    "Hillshade map",
+                    "Dot density map",
+                    "Thematic map"
+                ],
+                correct: 1
+            },
+            {
+                question: "What is 'georeferencing' in GIS?",
+                answers: [
+                    "Converting attribute data to spatial data",
+                    "Aligning raster data to a coordinate system",
+                    "Reclassifying raster data into vector format",
+                    "Changing map projections"
+                ],
+                correct: 1
+            },
+            {
+                question: "Which of the following defines 'attribute domain' in GIS?",
+                answers: [
+                    "A range of valid values for a field",
+                    "A method for raster classification",
+                    "A file format for storing vector data",
+                    "A tool for performing spatial queries"
+                ],
+                correct: 0
+            },
+            {
+                question: "Which is an example of interval data?",
+                answers: [
+                    "Temperature in Celsius",
+                    "Age of a building",
+                    "Land use type",
+                    "Number of trees in a park"
+                ],
+                correct: 0
+            },
+            {
+                question: "Which GIS operation is used to split features into smaller units?",
+                answers: [
+                    "Clip",
+                    "Split",
+                    "Dissolve",
+                    "Buffer"
+                ],
+                correct: 1
+            },
+            {
+                question: "What does 'clip' do in GIS operations?",
+                answers: [
+                    "Removes specific layers from the dataset",
+                    "Extracts features from one layer based on another layer",
+                    "Merges multiple datasets into one",
+                    "Deletes invalid data points"
+                ],
+                correct: 1
+            },
+            {
+                question: "Which of the following is a type of 'spatial join'?",
+                answers: [
+                    "Append",
+                    "Intersect",
+                    "Join based on proximity",
+                    "Simplify"
+                ],
+                correct: 2
+            },
+            {
+                question: "In raster data, what does each cell contain?",
+                answers: [
+                    "Coordinate information only",
+                    "An attribute value representing the area",
+                    "Layers of vector data",
+                    "Polygons representing spatial features"
+                ],
+                correct: 1
+            },
+            {
+                question: "What is 'dot density mapping' used for?",
+                answers: [
+                    "Showing quantities by grouping features",
+                    "Representing spatial density with dots",
+                    "Highlighting elevation contours",
+                    "Creating thematic maps for large regions"
+                ],
+                correct: 1
+            },
+            {
+                question: "Which of these tools is used for proximity analysis in GIS?",
+                answers: [
+                    "Buffer",
+                    "Dissolve",
+                    "Split",
+                    "Merge"
+                ],
+                correct: 0
+            },
+            {
+                question: "What type of query combines spatial and attribute data?",
+                answers: [
+                    "SQL query",
+                    "Join query",
+                    "Spatial query",
+                    "Overlay analysis"
+                ],
+                correct: 2
+            },
+            {
+                question: "Which coordinate system is based on a spherical model of Earth?",
+                answers: [
+                    "Projected Coordinate System",
+                    "Geographic Coordinate System",
+                    "Universal Transverse Mercator",
+                    "Cartesian Coordinate System"
+                ],
+                correct: 1
+            },
+            {
+                question: "What does 'hillshading' represent in GIS?",
+                answers: [
+                    "Population density",
+                    "Topographical variation using light and shadow",
+                    "Vegetation cover",
+                    "Water bodies on a map"
+                ],
+                correct: 1
+            },
+            {
+                question: "Which GIS tool is best suited for route optimization?",
+                answers: [
+                    "Network analysis",
+                    "Overlay analysis",
+                    "Buffering",
+                    "Reclassification"
+                ],
+                correct: 0
+            },
+            {
+                question: "What is the purpose of 'merge' in GIS?",
+                answers: [
+                    "Combining multiple spatial layers into one",
+                    "Dividing a dataset into smaller subsets",
+                    "Reprojecting coordinate systems",
+                    "Simplifying attribute data"
+                ],
+                correct: 0
+            },
+            {
+                question: "What does 'map algebra' refer to in GIS?",
+                answers: [
+                    "Manipulation of raster data using mathematical expressions",
+                    "Analyzing vector data for attribute queries",
+                    "Transforming coordinate systems",
+                    "Managing geodatabases"
+                ],
+                correct: 0
+            },
+            {
+                question: "What is the main purpose of 'topology' in GIS?",
+                answers: [
+                    "Ensuring spatial relationships among features",
+                    "Converting raster data into vector",
+                    "Overlaying multiple datasets",
+                    "Storing metadata for geodatabases"
+                ],
+                correct: 0
+            },
+            {
+                question: "Which type of raster is most suitable for analyzing temperature changes?",
+                answers: [
+                    "Continuous raster",
+                    "Thematic raster",
+                    "Background raster",
+                    "Attribute raster"
+                ],
+                correct: 0
+            },
+            {
+                question: "What is the significance of 'coordinate transformation' in GIS?",
+                answers: [
+                    "Reprojecting data into a new spatial reference system",
+                    "Extracting attributes from tables",
+                    "Simplifying layers for faster processing",
+                    "Analyzing attribute queries"
+                ],
+                correct: 0
+            },
+            {
+                question: "Which method is most accurate for mapping underground utilities?",
+                answers: [
+                    "Heads-up digitizing",
+                    "Ground-penetrating radar (GPR)",
+                    "Raster interpolation",
+                    "Satellite imagery"
+                ],
+                correct: 1
+            },
+            {
+                question: "What does 'attribute normalization' ensure?",
+                answers: [
+                    "Redundancy-free attribute tables",
+                    "Spatial alignment of features",
+                    "Simplification of raster layers",
+                    "Buffer creation for spatial analysis"
+                ],
+                correct: 0
+            },
+            {
+                question: "What is 'kriging' in GIS?",
+                answers: [
+                    "A geostatistical method for spatial interpolation",
+                    "Simplifying vector layers",
+                    "Projecting maps into 3D",
+                    "Combining multiple datasets"
+                ],
+                correct: 0
+            },
+            {
+                question: "What is 'LIDAR' commonly used for in GIS?",
+                answers: [
+                    "Remote sensing to create high-resolution elevation models",
+                    "Capturing images of Earth's surface",
+                    "Creating attribute tables",
+                    "Converting raster to vector data"
+                ],
+                correct: 0
+            },
+            {
+                question: "What is a 'georectified' image in GIS?",
+                answers: [
+                    "An image aligned to a specific coordinate system",
+                    "A scanned raster image",
+                    "A vectorized map from satellite data",
+                    "A 3D representation of terrain"
+                ],
+                correct: 0
+            },
+            {
+                question: "Which of the following is an example of 'scale-dependent analysis'?",
+                answers: [
+                    "Using larger scales for detailed urban planning",
+                    "Assigning projections to maps",
+                    "Combining different data types into one",
+                    "Reducing raster resolution"
+                ],
+                correct: 0
+            },
+            {
+                question: "Which method is used to ensure positional accuracy in GIS data collection?",
+                answers: [
+                    "Data normalization",
+                    "Differential GPS (DGPS)",
+                    "Topological correction",
+                    "Buffering"
+                ],
+                correct: 1
+            },
+            {
+                question: "What is 'feature extraction' in GIS?",
+                answers: [
+                    "Extracting attribute tables",
+                    "Identifying spatial features from raw data",
+                    "Converting raster to vector data",
+                    "Simplifying map layers"
+                ],
+                correct: 1
+            },
+            {
+                question: "Which type of GIS data supports time-dependent analysis?",
+                answers: [
+                    "Raster",
+                    "Spatiotemporal data",
+                    "Thematic data",
+                    "Attribute tables"
+                ],
+                correct: 1
+            },
+            {
+                question: "What is the purpose of 'intersect' in GIS?",
+                answers: [
+                    "Combines features while retaining all data",
+                    "Finds overlapping areas between datasets",
+                    "Removes invalid geometries",
+                    "Reprojects spatial layers"
+                ],
+                correct: 1
+            },
+            {
+                question: "What is 'raster resampling' used for?",
+                answers: [
+                    "Converting vector data to raster format",
+                    "Changing cell size or resolution of raster data",
+                    "Merging multiple raster layers",
+                    "Calculating statistics from raster data"
+                ],
+                correct: 1
+            },
+            {
+                question: "Which GIS tool measures accessibility within a network?",
+                answers: [
+                    "Proximity analysis",
+                    "Buffering",
+                    "Network analysis",
+                    "Topology verification"
+                ],
+                correct: 2
+            },
+            {
+                question: "What is 'NDVI' used for in GIS?",
+                answers: [
+                    "Measuring topographic changes",
+                    "Identifying vegetation health",
+                    "Detecting water bodies",
+                    "Monitoring urban development"
+                ],
+                correct: 1
+            },
+            {
+                question: "Which of the following is an example of ordinal data in GIS?",
+                answers: [
+                    "Land use categories",
+                    "Soil quality ratings (e.g., poor, average, good)",
+                    "Temperature values",
+                    "Latitude and longitude coordinates"
+                ],
+                correct: 1
+            },
+            {
+                question: "What does 'metadata' describe in GIS?",
+                answers: [
+                    "Detailed information about datasets",
+                    "Visual representation of layers",
+                    "Coordinate transformation methods",
+                    "Spatial relationships between features"
+                ],
+                correct: 0
+            },
+            {
+                question: "What is the 'union' operation used for in GIS?",
+                answers: [
+                    "Combining attributes from non-overlapping features",
+                    "Merging all features from two layers",
+                    "Identifying areas shared by all layers",
+                    "Removing duplicate features from a dataset"
+                ],
+                correct: 1
+            },
+            {
+                question: "What is a 'heat map' in GIS?",
+                answers: [
+                    "A map showing elevation changes",
+                    "A visual representation of density",
+                    "A tool for measuring distances",
+                    "A projection method"
+                ],
+                correct: 1
+            },
+            {
+                question: "What is 'ground truthing' in GIS?",
+                answers: [
+                    "Verifying spatial data with real-world observations",
+                    "Converting raster layers into vector format",
+                    "Simplifying topological relationships",
+                    "Updating metadata records"
+                ],
+                correct: 0
+            },
+            {
+                question: "Which GIS analysis method is best for identifying flood-prone areas?",
+                answers: [
+                    "Raster overlay",
+                    "Buffer analysis",
+                    "Network analysis",
+                    "Attribute query"
+                ],
+                correct: 0
+            },
+            {
+                question: "What is 'spatial autocorrelation'?",
+                answers: [
+                    "Dependency of attribute values on spatial proximity",
+                    "Measuring the distance between features",
+                    "Projecting spatial layers onto a 3D surface",
+                    "Analyzing raster resolution"
+                ],
+                correct: 0
+            },
+            {
+                question: "Which operation calculates the shortest path between two points?",
+                answers: [
+                    "Buffering",
+                    "Network analysis",
+                    "Spatial join",
+                    "Dissolve"
+                ],
+                correct: 1
+            },
+            {
+                question: "What is the purpose of 'cartographic generalization'?",
+                answers: [
+                    "Increasing map accuracy",
+                    "Simplifying map details for better readability",
+                    "Enhancing spatial resolution",
+                    "Combining multiple map layers"
+                ],
+                correct: 1
+            },
+            {
+                question: "Which data type is used to represent 3D elevation models?",
+                answers: [
+                    "DEM (Digital Elevation Model)",
+                    "Vector polygons",
+                    "Raster thematic layers",
+                    "Attribute tables"
+                ],
+                correct: 0
+            },
+            {
+                question: "What is 'Thiessen polygon' used for in GIS?",
+                answers: [
+                    "Interpolating point data into polygons",
+                    "Creating raster grids",
+                    "Mapping linear features",
+                    "Performing spatial joins"
+                ],
+                correct: 0
+            },
+            {
+                question: "Which GIS method is most suitable for site suitability analysis?",
+                answers: [
+                    "Weighted overlay",
+                    "Attribute query",
+                    "Hillshade analysis",
+                    "Network routing"
+                ],
+                correct: 0
+            },
+            {
+                question: "What is 'time-series analysis' in GIS used for?",
+                answers: [
+                    "Monitoring changes over time",
+                    "Creating dynamic network paths",
+                    "Simplifying temporal data",
+                    "Reclassifying attribute layers"
+                ],
+                correct: 0
+            }
+        ];
+
+        let currentQuestionIndex = 0;
+        let score = 0;
+
+        function loadQuestion() {
+            const questionContainer = document.getElementById('quiz');
+            questionContainer.innerHTML = '';
+
+            const question = questions[currentQuestionIndex];
+            const questionElement = document.createElement('div');
+            questionElement.classList.add('question');
+            questionElement.innerHTML = `<h2>Question ${currentQuestionIndex + 1}: ${question.question}</h2>`;
+
+            question.answers.forEach((answer, index) => {
+                const answerElement = document.createElement('div');
+                answerElement.classList.add('answer');
+                answerElement.innerText = answer;
+                answerElement.addEventListener('click', () => checkAnswer(index));
+                questionElement.appendChild(answerElement);
+            });
+
+            questionContainer.appendChild(questionElement);
+            updateScore();
+        }
+
+        function checkAnswer(selectedIndex) {
+            const question = questions[currentQuestionIndex];
+            const answers = document.querySelectorAll('.answer');
+
+            if (selectedIndex === question.correct) {
+                answers[selectedIndex].classList.add('correct');
+                score++;
+                showConfetti();
+            } else {
+                answers[selectedIndex].classList.add('incorrect');
+                answers[question.correct].classList.add('correct');
+            }
+
+            document.getElementById('nextButton').style.display = 'block';
+        }
+
+        function showConfetti() {
+            const confetti = document.createElement('div');
+            confetti.classList.add('confetti');
+            document.body.appendChild(confetti);
+            // Add confetti animation logic here
+        }
+
+        document.getElementById('nextButton').addEventListener('click', () => {
+            currentQuestionIndex++;
+            if (currentQuestionIndex < questions.length) {
+                loadQuestion();
+                document.getElementById('nextButton').style.display = 'none';
+            } else {
+                showResult();
+            }
+        });
+
+        function showResult() {
+            const resultContainer = document.getElementById('result');
+            resultContainer.innerHTML = `<h2>Your Score: ${score} out of ${questions.length}</h2>`;
+        }
+
+        function updateScore() {
+            document.getElementById('score').innerText = `Score: ${score} / ${questions.length}`;
+        }
+
+        loadQuestion();
+    </script>
+</body>
+</html>
